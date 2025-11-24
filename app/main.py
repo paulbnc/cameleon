@@ -12,7 +12,8 @@ def main():
 
     cameleon = Cameleon(w_height=window.height,
                         w_width=window.width,
-                        w_hud=window.hud_height)
+                        w_hud=window.hud_height,
+                        n_blocks=10)
 
     running = True
     while running:

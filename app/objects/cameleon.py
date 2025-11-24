@@ -93,12 +93,12 @@ class Block:
 
 class Cameleon:
     def __init__(self,
-                 w_width:int, 
+                 w_width:int,
                  w_height:int,
-                 w_hud:int, 
+                 w_hud:int,
                  n_blocks:int = 4,
-                 height:int = 30, 
-                 width:int = 30, 
+                 height:int = 30,
+                 width:int = 30,
                  color:tuple = (20, 150, 50),
                  speed:int = 5):
         self.blocks = []
@@ -107,11 +107,11 @@ class Cameleon:
         y = float((w_height + w_hud - height)/2)
 
         for i in range(n_blocks):
-            block = Block(w_width, 
+            block = Block(w_width,
                                 w_height,
-                                w_hud, 
-                                height, 
-                                width, 
+                                w_hud,
+                                height,
+                                width,
                                 color,
                                 speed,
                                 x,
@@ -119,25 +119,35 @@ class Cameleon:
             y += block.height + block.height/30
             self.blocks.append(block)
 
-        self.fifo = []
-  
+        self.segment_distance = height + height/30
+
     def draw(self, screen):
         for block in self.blocks:
             block.draw(screen)
 
     def handle_input(self):
         head = self.blocks[0]
-        last_move = head.handle_input()
+        head.handle_input()
 
-        self.fifo.append(last_move)
+        for i in range(1, len(self.blocks)):
+            current_block = self.blocks[i]
+            previous_block = self.blocks[i - 1]
 
-        i = 1
-        while len(self.fifo) > 0 and i < len(self.blocks):
+            dx = previous_block.x - current_block.x
+            dy = previous_block.y - current_block.y
 
-            move = self.fifo.pop(0)  # FIFO
+            distance = (dx ** 2 + dy ** 2) ** 0.5
 
-            block = self.blocks[i]
-            block.move(action=move)
+            if distance > self.segment_distance:
+                ratio = self.segment_distance / distance
+                target_x = previous_block.x - dx * ratio
+                target_y = previous_block.y - dy * ratio
 
-            i += 1
+                current_block.x = target_x
+                current_block.y = target_y
+
+                current_block.rect = pygame.Rect(current_block.x,
+                                                   current_block.y,
+                                                   current_block.width,
+                                                   current_block.height)
 
