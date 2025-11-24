@@ -10,7 +10,7 @@ def main():
     window.set_title()
     window.update_clock()
 
-    cameleon = Cameleon(w_height=window.height, 
+    cameleon = Cameleon(w_height=window.height,
                         w_width=window.width,
                         w_hud=window.hud_height)
 

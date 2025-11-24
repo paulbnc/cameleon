@@ -41,7 +41,7 @@ class Block:
         if self.x < 0:
             self.x = 0
 
-    def handle_input(self)->None:
+    def handle_input(self)->str:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             self.x -= self.speed
@@ -62,18 +62,34 @@ class Block:
                                 self.y, 
                                 self.width, 
                                 self.height)
+        return self.last_action
 
     def draw(self, screen)->None:
         pygame.draw.rect(screen, self.color, self.rect)
         #pour un skin en png : screen.blit(self.skin, (self.x, self.y))
     
-    def move(self, x, y):
-        self.x = x
-        self.y = y
+    def move(self, x:float = None, y:float = None, action:str = None):
+        if action=='left':
+            self.x -= self.speed
+        if action=='right':
+            self.x += self.speed
+        if action=='up':
+            self.y -= self.speed
+        if action=='down':
+            self.y += self.speed
+
+        if action is not None:
+            self.last_action = action
+        elif (x is not None) and (y is not None):
+            self.x = x
+            self.y = y
+
+        self.check_collide()
         self.rect = pygame.Rect(self.x, 
                                 self.y, 
                                 self.width, 
                                 self.height)
+        
 
 class Cameleon:
     def __init__(self,
@@ -100,8 +116,10 @@ class Cameleon:
                                 speed,
                                 x,
                                 y)
-            y += block.height
+            y += block.height + block.height/30
             self.blocks.append(block)
+
+        self.fifo = []
   
     def draw(self, screen):
         for block in self.blocks:
@@ -109,11 +127,17 @@ class Cameleon:
 
     def handle_input(self):
         head = self.blocks[0]
-        old_positions = [(head.x, head.y)]
-        head.handle_input()
+        last_move = head.handle_input()
 
-        for i in range(1, len(self.blocks)):
+        self.fifo.append(last_move)
+
+        i = 1
+        while len(self.fifo) > 0 and i < len(self.blocks):
+
+            move = self.fifo.pop(0)  # FIFO
+
             block = self.blocks[i]
-            prev = self.blocks[i-1]
-            old_positions.append((block.x, block.y))
-            block.move(old_positions[i-1][0], old_positions[i-1][1])
+            block.move(action=move)
+
+            i += 1
+
