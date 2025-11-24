@@ -106,6 +106,8 @@ class Cameleon:
         x = float(w_width/2)
         y = float((w_height + w_hud - height)/2)
 
+        decay = 0.95
+
         for i in range(n_blocks):
             block = Block(w_width,
                                 w_height,
@@ -116,10 +118,14 @@ class Cameleon:
                                 speed,
                                 x,
                                 y)
-            y += block.height + block.height/30
+            var = width
+            height *= decay
+            width *= decay
+            y += block.height + 1
+            x += (var - width)/2
             self.blocks.append(block)
 
-        self.segment_distance = height + height/30
+        self.segment_distance = height + 1
 
     def draw(self, screen):
         for block in self.blocks:
